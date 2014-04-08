@@ -1,0 +1,88 @@
+HeatTemplateFormatVersion: '2014-04-08'
+
+Description: 'NeCTAR Template for creating a ReDBox-Mint software stack on ephemeral storage. This template currently works only with the CeNTOS 6.5 image.'
+  
+Parameters:
+  KeyName:
+    Type: String
+    Description:
+      Name of an existing key pair to enable SSH access to the instance.
+  InstanceSize:
+    Type: String
+    Description: Size of the instance to be created.
+    Default: m1.small
+    AllowedValues: [m1.small, m1.medium, m1.large, m1.xlarge, m1.xxlarge]
+  ImageName:
+    Type: String
+    Description: Name of the image to use for the instance to be created (currently only has support for CentOS)
+    Default: CentOS6.5
+    AllowedValues: [CentOS6.5]
+  AvailabilityZone:
+    Type: String
+    Description: The NeCTAR zone in which the VM is to run (must have block storage)
+    Default: sa
+    AllowedValues: [melbourne, monash, sa, qld]
+  
+Mappings:
+  InstanceId:
+   'CentOS6.5': {ImageId: 5841b33e-2cdf-45d0-bca7-33c8967d3244}   
+
+Resources:
+  ReDBoxSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Enable ReDBox Ports"
+      SecurityGroupIngress:        
+        -
+          IpProtocol: "tcp"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: "0.0.0.0/0"
+        -
+          IpProtocol: "tcp"
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: "0.0.0.0/0"
+        -
+          IpProtocol: "tcp"
+          FromPort: "9000"
+          ToPort: "9300"
+          CidrIp: "0.0.0.0/0"
+  ReDBoxInstance:
+    Type: OS::Nova::Server
+    Properties:
+      availability_zone: { Ref: AvailabilityZone }
+      image:
+        Fn::FindInMap:
+        - InstanceId
+        - {Ref: ImageName}
+        - ImageId
+      flavor: { Ref: InstanceSize }
+      key_name: { Ref: KeyName }
+      security_groups: [{Ref: ReDBoxSecGroup}]
+      user_data:
+        Fn::Base64:
+          Fn::Join:
+          - ''
+          - - |
+              #!/bin/bash -v            
+              /usr/bin/cfn-init
+              # Install puppet and install ReDBox              
+              sudo yum -y install git && git clone https://github.com/redbox-mint-contrib/puppet-redbox.git /tmp/puppet-redbox && rm -Rf /tmp/puppet-redbox/.git*            
+              sudo /tmp/puppet-redbox/scripts/pre-install.sh
+              sudo puppet apply -e "class {'puppet-redbox':}"              
+Outputs:  
+  ReDBoxURL:
+    Description: The URL of ReDBox      
+    Value:
+      Fn::Join:
+      - ''
+      - - http://
+        - Fn::GetAtt: [ReDBoxInstance, first_address]
+        - /    
+  InstanceIP:
+    Description: Public IP address of the newly created ReDBox instance.
+    Value:
+      Fn::GetAtt:
+      - ReDBoxInstance
+      - first_address
