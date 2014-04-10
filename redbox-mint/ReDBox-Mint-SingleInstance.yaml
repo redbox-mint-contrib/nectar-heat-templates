@@ -65,12 +65,11 @@ Resources:
           Fn::Join:
           - ''
           - - |
-              #!/bin/bash -v            
-              /usr/bin/cfn-init
+              #!/bin/bash -v                          
               # Install puppet and install ReDBox              
-              sudo yum -y install git && git clone https://github.com/redbox-mint-contrib/puppet-redbox.git /tmp/puppet-redbox && rm -Rf /tmp/puppet-redbox/.git*            
-              sudo /tmp/puppet-redbox/scripts/pre-install.sh
-              sudo puppet apply -e "class {'puppet-redbox':}"              
+              yum -y install git && git clone https://github.com/redbox-mint-contrib/puppet-redbox.git /tmp/puppet-redbox && rm -Rf /tmp/puppet-redbox/.git*            
+              /tmp/puppet-redbox/scripts/pre-install.sh
+              puppet apply -e "class {'puppet-redbox':}"              
 Outputs:  
   ReDBoxURL:
     Description: The URL of ReDBox      
@@ -79,7 +78,7 @@ Outputs:
       - ''
       - - http://
         - Fn::GetAtt: [ReDBoxInstance, first_address]
-        - /    
+        - /redbox/default/home    
   InstanceIP:
     Description: Public IP address of the newly created ReDBox instance.
     Value:
