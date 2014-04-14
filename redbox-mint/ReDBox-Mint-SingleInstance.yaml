@@ -65,11 +65,16 @@ Resources:
           Fn::Join:
           - ''
           - - |
-              #!/bin/bash -v                          
+              #!/bin/bash -v
+              # Mount the Ephemeral disk and use it as /opt
+              mkdir /mnt/ephemeral              
+              echo "/dev/vdb        /mnt/ephemeral    auto    defaults,auto,nofail,comment=heatconfig     0       2" >> /etc/fstab              
+              mount /mnt/ephemeral && mkdir /mnt/ephemeral/opt && rm -rf /opt && ln -s /mnt/ephemeral/opt /opt            
               # Install puppet and install ReDBox              
               yum -y install git && git clone https://github.com/redbox-mint-contrib/puppet-redbox.git /tmp/puppet-redbox && rm -Rf /tmp/puppet-redbox/.git*            
               /tmp/puppet-redbox/scripts/pre-install.sh
-              puppet apply -e "class {'puppet-redbox':}"              
+              puppet apply -e "class {'puppet-redbox':}"
+              
 Outputs:  
   ReDBoxURL:
     Description: The URL of ReDBox      
