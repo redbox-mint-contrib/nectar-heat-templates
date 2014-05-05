@@ -1,6 +1,28 @@
+# Copyright (C) 2014 Queensland Cyber Infrastructure Foundation (http://www.qcif.edu.au/)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# 
+# Author: <a href="https://github.com/shilob">Shilo Banihit</a>
+  
 HeatTemplateFormatVersion: '2014-04-08'
 
-Description: 'NeCTAR Template for creating a ReDBox-Mint software stack on ephemeral storage. This template currently works only with the CeNTOS 6.5 image.'
+Description: >
+  Template for creating a ReDBox-Mint software stack on ephemeral storage. 
+  This template currently works only with the NeCTAR CentOS 6.5 x86_64 image. 
+  Among others, useful in spinning up VMs for development or demonstration purposes.
   
 Parameters:
   KeyName:
@@ -15,8 +37,8 @@ Parameters:
   ImageName:
     Type: String
     Description: Name of the image to use for the instance to be created (currently only has support for CentOS)
-    Default: CentOS6.5
-    AllowedValues: [CentOS6.5]
+    Default: CentOS_6.5_x86_64
+    AllowedValues: [CentOS_6.5_x86_64]
   AvailabilityZone:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
@@ -25,7 +47,7 @@ Parameters:
   
 Mappings:
   InstanceId:
-   'CentOS6.5': {ImageId: 5841b33e-2cdf-45d0-bca7-33c8967d3244}   
+   'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
 
 Resources:
   ReDBoxSecGroup:
@@ -76,6 +98,14 @@ Resources:
               puppet apply -e "class {'puppet-redbox':}"
               
 Outputs:  
+  MintURL:
+    Description: The URL of Mint      
+    Value:
+      Fn::Join:
+      - ''
+      - - http://
+        - Fn::GetAtt: [ReDBoxInstance, first_address]
+        - /mint/default/home
   ReDBoxURL:
     Description: The URL of ReDBox      
     Value:

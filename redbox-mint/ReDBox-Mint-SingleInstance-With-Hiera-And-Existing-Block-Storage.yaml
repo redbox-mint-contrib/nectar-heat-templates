@@ -1,0 +1,235 @@
+# Copyright (C) 2014 Queensland Cyber Infrastructure Foundation (http://www.qcif.edu.au/)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# 
+# Author: <a href="https://github.com/shilob">Shilo Banihit</a>
+
+HeatTemplateFormatVersion: '2014-04-15'
+
+Description: >
+  Template for creating a ReDBox-Mint software stack with access to an pre-existing volume storage. 
+  This template currently works only with the NeCTAR CentOS 6.5 x86_64 image.
+  The Block storage will be mounted on "/mnt/data", which will be mapped to "/opt". The volume will be partitioned and formatted.
+  
+  Untested: Optionally, if you want more than just the vanilla configuration, you will need Hiera configuration similar to https://github.com/redbox-mint-contrib/puppet-heira-redbox
+  and assumes that the configuration is hosted behind a private Git repository. 
+  The template will accept an SSH key parameter to access the private Hiera repository, which is then discarded after cloning.  
+  This is handy when creating instances requiring environment-specific configuration.
+  
+Parameters:
+  KeyName:
+    Type: String
+    Description:
+      Name of an existing key pair to enable SSH access to the instance.
+  InstanceSize:
+    Type: String
+    Description: Size of the instance to be created.
+    Default: m1.small
+    AllowedValues: [m1.small, m1.medium, m1.large, m1.xlarge, m1.xxlarge]
+  ImageName:
+    Type: String
+    Description: Name of the image to use for the instance to be created (currently only has support for CentOS)
+    Default: CentOS_6.5_x86_64
+    AllowedValues: [CentOS_6.5_x86_64]
+  AvailabilityZone:
+    Type: String
+    Description: The NeCTAR zone in which the VM is to run (must have block storage)
+    Default: sa
+    AllowedValues: [melbourne, monash, sa, qld, NCI, tasmania]    
+  HieraGitUrl:
+    Type: String    
+    Description: The URL of the private Git repository containing the Hiera configuration.
+  HieraGitSshKey:
+    Type: String
+    Description: The SSH Key used to access the private Hiera Git repository.  
+  SecretKeyServerUrl:
+    Type: String
+    Description: Key Server URL
+  SecretKeyName:
+    Type: String
+    Description: Key Name
+  Environment:
+    Type: String
+    Description: The environment string that will be saved in the 'main' puppet configuration. Values will be specific to your Hiera config.
+  VolumeStorageId:
+    Type: String
+    Description: The block volume storage ID that will be mounted to /mnt/data. To determine the ID, login to the NeCTAR Dashboard, click on the "Volumes" link and click on the Volume you want to mount. Take note that the instance and the volume must be on the same zone.          
+    
+Mappings:
+  InstanceId:
+   'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
+
+Resources:
+  ReDBoxSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Enable ReDBox Ports"
+      SecurityGroupIngress:        
+        -
+          IpProtocol: "tcp"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: "0.0.0.0/0"
+        -
+          IpProtocol: "tcp"
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: "0.0.0.0/0"
+        -
+          IpProtocol: "tcp"
+          FromPort: "9000"
+          ToPort: "9300"
+          CidrIp: "0.0.0.0/0"
+  ReDBoxInstance:
+    Type: OS::Nova::Server
+    Properties:
+      availability_zone: { Ref: AvailabilityZone }
+      image:
+        Fn::FindInMap:
+        - InstanceId
+        - {Ref: ImageName}
+        - ImageId
+      flavor: { Ref: InstanceSize }
+      key_name: { Ref: KeyName }
+      security_groups: [{Ref: ReDBoxSecGroup}]
+      user_data:
+        Fn::Base64:
+          Fn::Replace:
+          - _HieraGitSshKey: {Ref: HieraGitSshKey}
+            _HieraGitUrl: {Ref: HieraGitUrl}
+            _Environment: {Ref: Environment}
+            _KeyServerUrl: {Ref: SecretKeyServerUrl}
+            _KeyName: {Ref: SecretKeyName}
+          - |
+            #!/bin/bash -v           
+            #
+            echo "Starting init script." 
+            echo "Creating and configuring mount points..."
+            mkdir /mnt/ephemeral
+            mkdir /mnt/data                          
+            echo -e "/dev/vdb        /mnt/ephemeral    auto    defaults,auto,nofail,comment=heatconfig     0       2\n/dev/vdc1       /mnt/data         auto    defaults,auto,nofail,comment=heatconfig     0       2" >> /etc/fstab
+            # Install puppet and get main puppet config
+            #              
+            echo "Installing Git and Cloning RB Repo..."
+            yum -y install git && git clone https://github.com/redbox-mint-contrib/puppet-redbox.git /tmp/puppet-redbox && rm -Rf /tmp/puppet-redbox/.git*
+            gitSshKey="_HieraGitSshKey"
+            # 
+            # Check if we have the SSH Key, if not, assume we are getting it from a 'keyServer', a REST service that returns the SSH private key as specified by 'keyName'. 
+            # When the 'keyName' must be sent via PUT, and the server must retun a unique identifier for which the script will use as 'id' parameter in the subsequent 'DELETE' command which ultimately returns the SSH key. 
+            #
+            if [ -z "$gitSshKey" ]; then
+              echo "SSH Key isn't provided attempting to get SSH Key from the keyServer..."
+              if [ ! -z "_KeyServerUrl" ]; then
+                curl --insecure -H "Accept: application/json" -H 'Content-Length: 0' -X PUT -G "_KeyServerUrl" -d keyName=_KeyName -d returnIdOnly=true > /tmp/keyServerRequestId
+                sleep 5
+                while [ -z "$gitSshKey" ]; do echo "Getting Secret Key value..."; curl --insecure -H "Accept: application/json" -H 'Content-Length: 0' -X DELETE -G "_KeyServerUrl" -d id=`cat /tmp/keyServerRequestId` > /tmp/keyValue; gitSshKey=`cat /tmp/keyValue`; sleep 5; done
+                rm -rf /tmp/keyValue
+              fi
+            fi                        
+            #
+            # Save the SSH Key, if we have one, and start the Hiera download
+            #
+            echo "Checking if we have a SSH Key..."
+            if [ ! -z "$gitSshKey" ]; then            
+              echo "Saving SSH Key..." 
+              echo "$gitSshKey" > ~/.ssh/temp_key1
+              # and put the line endings back into it
+              tr ' ' '\n' < ~/.ssh/temp_key1 > ~/.ssh/temp_key2
+              # then rebuild the whole key from scratch
+              echo "-----BEGIN RSA PRIVATE KEY-----" > ~/.ssh/test_key
+              tail -n -29 ~/.ssh/temp_key2 | head -25 >> ~/.ssh/test_key
+              echo "-----END RSA PRIVATE KEY-----" >> ~/.ssh/test_key
+              # set the correct permissions on the key
+              chmod 400 ~/.ssh/test_key
+              mv ~/.ssh/test_key ~/.ssh/devopskey  
+              # remove our working copies
+              rm -f /root/.ssh/temp_key*             
+              #
+              # Get the Hiera config
+              #
+              echo "Getting Hiera config..."
+              echo 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*' > /tmp/ssh
+              chmod +x /tmp/ssh
+              ssh-agent bash -c "ssh-add ~/.ssh/devopskey; GIT_TRACE=1 GIT_SSH='/tmp/ssh' git clone _HieraGitUrl /tmp/puppet-hiera-redbox"
+              rm -rf ~/.ssh/devopskey
+            fi
+            #             
+            # Wait for the volume to appear
+            #
+            echo "Waiting for volume to appear..."
+            while [ ! -e /dev/vdc ]; do echo "Still waiting for volume..."; sleep 1; done
+            #
+            # Check if volume is already partitioned and formatted
+            #
+            echo "Checking if volume is partitioned..."
+            devc=`fdisk /dev/vdc -l | tail -1 | tr -d ' '`
+            if [ -z "$devc" -o "$devc" = "DeviceBootStartEndBlocksIdSystem" ]; then             
+              echo "Volume is not partitioned and/or formatted, partioning..."
+              # partition the volume
+              (echo c; echo u; echo n; echo p; echo 1; echo ; echo; echo w) | fdisk /dev/vdc
+              # format it
+              echo "Formatting volume..."
+              /sbin/mkfs -t ext3 /dev/vdc1
+            fi
+            #
+            # Mount volume and use it as /opt            
+            # Mount the Ephemeral disk but don't use it as /opt, use Volume storage instead
+            #                        
+            echo "Mounting volume and ephemeral storage..."
+            mount /mnt/ephemeral                        
+            mount /mnt/data 
+            rm -rf /opt && ln -s /mnt/data /opt
+            echo "Preparing to install ReDBox / Mint, running pre-install script."
+            /tmp/puppet-redbox/scripts/pre-install.sh
+            if [ -e /tmp/puppet-hiera-redbox/scripts/install.sh ]; then
+              echo "Running Hiera install script..."
+              /tmp/puppet-hiera-redbox/scripts/install.sh
+            fi        
+            echo "Installing ReDBox..."
+            # Install ReDBox
+            puppet apply -e "class {'puppet-redbox':}" 
+            
+  VolumeAttachment:
+    Type: OS::Cinder::VolumeAttachment
+    Properties:
+      volume_id: { Ref: VolumeStorageId }
+      instance_uuid: { Ref: ReDBoxInstance }
+      # mount point has to be vdc or higher as vdb is transient storage allocated by NeCTAR
+      mountpoint: "/dev/vdc"            
+              
+Outputs:  
+  ReDBoxURL:
+    Description: The URL of ReDBox      
+    Value:
+      Fn::Join:
+      - ''
+      - - http://
+        - Fn::GetAtt: [ReDBoxInstance, first_address]
+        - /redbox/default/home    
+  MintURL:
+    Description: The URL of Mint      
+    Value:
+      Fn::Join:
+      - ''
+      - - http://
+        - Fn::GetAtt: [ReDBoxInstance, first_address]
+        - /mint/default/home
+  InstanceIP:
+    Description: Public IP address of the newly created ReDBox instance.
+    Value:
+      Fn::GetAtt:
+      - ReDBoxInstance
+      - first_address
