@@ -42,8 +42,8 @@ Parameters:
   AvailabilityZone:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
-    Default: sa
-    AllowedValues: [melbourne, monash, sa, qld]
+    Default: NCI
+    AllowedValues: [melbourne, monash, sa, qld, NCI]
   
 Mappings:
   InstanceId:

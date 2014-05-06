@@ -22,7 +22,7 @@ HeatTemplateFormatVersion: '2014-04-15'
 Description: >
   Template for creating a ReDBox-Mint software stack with access to an pre-existing volume storage. 
   This template currently works only with the NeCTAR CentOS 6.5 x86_64 image.
-  The Block storage will be mounted on "/mnt/data", which will be mapped to "/opt". The volume will be partitioned and formatted.
+  The Block storage will be mounted on "/mnt/data", which will be mapped to "/opt". The volume will be partitioned and formatted if it is not already so.
   
   Untested: Optionally, if you want more than just the vanilla configuration, you will need Hiera configuration similar to https://github.com/redbox-mint-contrib/puppet-heira-redbox
   and assumes that the configuration is hosted behind a private Git repository. 
@@ -47,8 +47,8 @@ Parameters:
   AvailabilityZone:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
-    Default: sa
-    AllowedValues: [melbourne, monash, sa, qld, NCI, tasmania]    
+    Default: NCI
+    AllowedValues: [melbourne, monash, sa, qld, NCI]    
   HieraGitUrl:
     Type: String    
     Description: The URL of the private Git repository containing the Hiera configuration.
@@ -128,7 +128,7 @@ Resources:
             gitSshKey="_HieraGitSshKey"
             # 
             # Check if we have the SSH Key, if not, assume we are getting it from a 'keyServer', a REST service that returns the SSH private key as specified by 'keyName'. 
-            # When the 'keyName' must be sent via PUT, and the server must retun a unique identifier for which the script will use as 'id' parameter in the subsequent 'DELETE' command which ultimately returns the SSH key. 
+            # When requesting 'keyName' via PUT, the server must retun a unique identifier for which the script will use as 'id' parameter in the subsequent 'DELETE' request that ultimately returns the SSH key. 
             #
             if [ -z "$gitSshKey" ]; then
               echo "SSH Key isn't provided attempting to get SSH Key from the keyServer..."

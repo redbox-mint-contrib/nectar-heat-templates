@@ -27,21 +27,21 @@ Parameters:
   AvailabilityZone:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
-    Default: melbourne-np
-    AllowedValues: [melbourne-qh2, melbourne-np, monash, qld]
+    Default: NCI
+    AllowedValues: [melbourne, monash, sa, qld, NCI]
 
   VolumeSize:
     Type: Number
     Description: Size of the volume to be created.
-    Default: 1
+    Default: 5
     Constraints:
-      - Range: { Min: 1, Max: 1024 }
-        Description: must be between 1 and 1024 Gb.
+      - Range: { Min: 5, Max: 1024 }
+        Description: must be between 5 and 1024 Gb.
 
 Mappings:
 
   InstanceId:
-   'CentOS6.5': {ImageId: 5841b33e-2cdf-45d0-bca7-33c8967d3244}
+   'CentOS6.5': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}
 
 Resources:
 
