@@ -67,7 +67,12 @@ Parameters:
   VolumeStorageId:
     Type: String
     Description: The block volume storage ID that will be mounted to /mnt/data. To determine the ID, login to the NeCTAR Dashboard, click on the "Volumes" link and click on the Volume you want to mount. Take note that the instance and the volume must be on the same zone.          
-    
+  InstallType:
+    Type: String
+    Description: The ReDBox Installation type, defaults to ‘basic’. 
+    Default: basic
+    AllowedValues: [basic, oaipmh-complete]
+
 Mappings:
   InstanceId:
    'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
@@ -113,18 +118,16 @@ Resources:
             _Environment: {Ref: Environment}
             _KeyServerUrl: {Ref: SecretKeyServerUrl}
             _KeyName: {Ref: SecretKeyName}
+            _InstallType: {Ref: InstallType} 
           - |
             #!/bin/bash -v           
             #
-            echo "Starting init script." 
+            echo "Starting to install software stack..."
+            echo `date +"%D-%H:%M:%S"` 
             echo "Creating and configuring mount points..."
             mkdir /mnt/ephemeral
             mkdir /mnt/data                          
             echo -e "/dev/vdb        /mnt/ephemeral    auto    defaults,auto,nofail,comment=heatconfig     0       2\n/dev/vdc1       /mnt/data         auto    defaults,auto,nofail,comment=heatconfig     0       2" >> /etc/fstab
-            # Install puppet and get main puppet config
-            #              
-            echo "Installing Git and Cloning RB Repo..."
-            yum -y install git && git clone https://github.com/redbox-mint-contrib/puppet-redbox.git /tmp/puppet-redbox && rm -Rf /tmp/puppet-redbox/.git*
             gitSshKey="_HieraGitSshKey"
             # 
             # Check if we have the SSH Key, if not, assume we are getting it from a 'keyServer', a REST service that returns the SSH private key as specified by 'keyName'. 
@@ -192,15 +195,13 @@ Resources:
             mount /mnt/ephemeral                        
             mount /mnt/data 
             rm -rf /opt && ln -s /mnt/data /opt
-            echo "Preparing to install ReDBox / Mint, running pre-install script."
-            /tmp/puppet-redbox/scripts/pre-install.sh
-            if [ -e /tmp/puppet-hiera-redbox/scripts/install.sh ]; then
-              echo "Running Hiera install script..."
-              /tmp/puppet-hiera-redbox/scripts/install.sh
-            fi        
             echo "Installing ReDBox..."
-            # Install ReDBox
-            puppet apply -e "class {'puppet-redbox':}" 
+            mkdir -p /tmp/redbox
+            wget -N -O /tmp/redbox/install.sh https://raw.githubusercontent.com/redbox-mint-contrib/puppet-redbox/master/scripts/install.sh  
+            chmod +x /tmp/redbox/install.sh
+            /tmp/redbox/install.sh _InstallType
+            echo "End of software stack installation"
+            echo `date +"%D-%H:%M:%S"`   
             
   VolumeAttachment:
     Type: OS::Cinder::VolumeAttachment

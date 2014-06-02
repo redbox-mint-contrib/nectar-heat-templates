@@ -16,7 +16,7 @@
 #
 # 
 # Author: <a href="https://github.com/shilob">Shilo Banihit</a>
-  
+ 
 HeatTemplateFormatVersion: '2014-04-08'
 
 Description: >
@@ -44,6 +44,11 @@ Parameters:
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
     Default: NCI
     AllowedValues: [melbourne, monash, sa, qld, NCI]
+  InstallType:
+    Type: String
+    Description: The ReDBox Installation type, defaults to ‘basic’. 
+    Default: basic
+    AllowedValues: [basic, oaipmh-complete]
   
 Mappings:
   InstanceId:
@@ -84,19 +89,24 @@ Resources:
       security_groups: [{Ref: ReDBoxSecGroup}]
       user_data:
         Fn::Base64:
-          Fn::Join:
-          - ''
-          - - |
-              #!/bin/bash -v
-              # Mount the Ephemeral disk and use it as /opt
-              mkdir /mnt/ephemeral              
-              echo "/dev/vdb        /mnt/ephemeral    auto    defaults,auto,nofail,comment=heatconfig     0       2" >> /etc/fstab              
-              mount /mnt/ephemeral && mkdir /mnt/ephemeral/opt && rm -rf /opt && ln -s /mnt/ephemeral/opt /opt            
-              # Install puppet and install ReDBox              
-              yum -y install git && git clone https://github.com/redbox-mint-contrib/puppet-redbox.git /tmp/puppet-redbox && rm -Rf /tmp/puppet-redbox/.git*            
-              /tmp/puppet-redbox/scripts/pre-install.sh
-              puppet apply -e "class {'puppet-redbox':}"
-              
+          Fn::Replace:
+          - _InstallType: {Ref: InstallType} 
+          - |
+            #!/bin/bash -v
+            # Mount the Ephemeral disk and use it as /opt
+            echo "Starting to install software stack..."
+            echo `date +"%D-%H:%M:%S"`
+            mkdir /mnt/ephemeral              
+            echo "/dev/vdb        /mnt/ephemeral    auto    defaults,auto,nofail,comment=heatconfig     0       2" >> /etc/fstab              
+            mount /mnt/ephemeral && mkdir /mnt/ephemeral/opt && rm -rf /opt && ln -s /mnt/ephemeral/opt /opt            
+            # Install puppet and install ReDBox              
+            mkdir -p /tmp/redbox
+            wget -N -O /tmp/redbox/install.sh https://raw.githubusercontent.com/redbox-mint-contrib/puppet-redbox/master/scripts/install.sh 
+            chmod +x /tmp/redbox/install.sh
+            /tmp/redbox/install.sh _InstallType
+            echo "End of software stack installation"
+            echo `date +"%D-%H:%M:%S"` 
+
 Outputs:  
   MintURL:
     Description: The URL of Mint      

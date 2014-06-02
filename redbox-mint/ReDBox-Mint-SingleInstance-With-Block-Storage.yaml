@@ -37,6 +37,11 @@ Parameters:
     Constraints:
       - Range: { Min: 5, Max: 1024 }
         Description: must be between 5 and 1024 Gb.
+  InstallType:
+    Type: String
+    Description: The ReDBox Installation type, defaults to ‘basic’. 
+    Default: basic
+    AllowedValues: [basic, oaipmh-complete]
 
 Mappings:
 
@@ -87,11 +92,12 @@ Resources:
       security_groups: [{Ref: ReDBoxSecGroup}]
       user_data:
         Fn::Base64:
-          Fn::Join:
-          - ''
-          - - |
+          Fn::Replace:
+          - _InstallType: {Ref: InstallType} 
+          - |
               #!/bin/bash -v
-
+              echo "Starting to install software stack..."
+              echo `date +"%D-%H:%M:%S"`
               # Wait for the volume to appear
               while [ ! -e /dev/vdc ]; do echo Waiting for volume to attach; sleep 1; done
 
@@ -102,15 +108,21 @@ Resources:
               /sbin/mkfs -t ext3 /dev/vdc1
 
               # and mount it
-              mkdir /data
-              mount /dev/vdc1 /data
-
-              # Install puppet and install ReDBox
-              yum -y install git && git clone https://github.com/redbox-mint-contrib/puppet-redbox.git /tmp/puppet-redbox && rm -Rf /tmp/puppet-redbox/.git*
-              /tmp/puppet-redbox/scripts/pre-install.sh
-              puppet apply -e "class {'puppet-redbox':}"
-
-
+              mkdir /mnt/ephemeral
+              mkdir /mnt/data                          
+              echo -e "/dev/vdb        /mnt/ephemeral    auto    defaults,auto,nofail,comment=heatconfig     0       2\n/dev/vdc1       /mnt/data         auto    defaults,auto,nofail,comment=heatconfig     0       2" >> /etc/fstab
+              mount /mnt/ephemeral                        
+              mount /mnt/data 
+              rm -rf /opt && ln -s /mnt/data /opt
+              
+              # Install puppet and install ReDBox              
+              mkdir -p /tmp/redbox
+              wget -N -O /tmp/redbox/install.sh https://raw.githubusercontent.com/redbox-mint-contrib/puppet-redbox/master/scripts/install.sh 
+              chmod +x /tmp/redbox/install.sh
+              /tmp/redbox/install.sh _InstallType
+              echo "End of software stack installation"
+              echo `date +"%D-%H:%M:%S"` 
+              
   VolumeAttachment:
     Type: OS::Cinder::VolumeAttachment
     Properties:
