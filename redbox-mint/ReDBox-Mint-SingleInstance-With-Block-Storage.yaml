@@ -41,7 +41,7 @@ Parameters:
     Type: String
     Description: The ReDBox Installation type, defaults to ‘basic’. 
     Default: basic
-    AllowedValues: [basic, oaipmh-complete]
+    AllowedValues: [basic, harvester-complete]
 
 Mappings:
 

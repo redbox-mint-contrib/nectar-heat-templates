@@ -77,7 +77,7 @@ Parameters:
     Type: String
     Description: The ReDBox Installation type, defaults to ‘basic’. 
     Default: basic
-    AllowedValues: [basic, oaipmh-complete]
+    AllowedValues: [basic, harvester-complete]
 Mappings:
   InstanceId:
    'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
