@@ -17,7 +17,7 @@
 # 
 # Author: <a href="https://github.com/shilob">Shilo Banihit</a>
 
-HeatTemplateFormatVersion: '2014-04-15'
+HeatTemplateFormatVersion: '2014-06-19'
 
 Description: >
   Template for creating a ReDBox-Mint software stack with access to an pre-existing volume storage. 
@@ -61,6 +61,10 @@ Parameters:
   SecretKeyName:
     Type: String
     Description: Key Name
+  SecretKeyMaxWaitTries:
+    Type: String
+    Default: 30
+    Description: The maximum wait attempts for the private SSH Key, each attempt is 5 seconds.  
   Environment:
     Type: String
     Description: The environment string that will be saved in the 'main' puppet configuration. Values will be specific to your Hiera config.
@@ -72,7 +76,9 @@ Parameters:
     Description: The ReDBox Installation type, defaults to ‘basic’. 
     Default: basic
     AllowedValues: [basic, harvester-complete]
-
+  ServerName:
+    Type: String
+    Description: The name of the Server instance
 Mappings:
   InstanceId:
    'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
@@ -110,6 +116,7 @@ Resources:
       flavor: { Ref: InstanceSize }
       key_name: { Ref: KeyName }
       security_groups: [{Ref: ReDBoxSecGroup}]
+      name: {Ref: ServerName }
       user_data:
         Fn::Base64:
           Fn::Replace:
@@ -138,7 +145,9 @@ Resources:
               if [ ! -z "_KeyServerUrl" ]; then
                 curl --insecure -H "Accept: application/json" -H 'Content-Length: 0' -X PUT -G "_KeyServerUrl" -d keyName=_KeyName -d returnIdOnly=true > /tmp/keyServerRequestId
                 sleep 5
-                while [ -z "$gitSshKey" ]; do echo "Getting Secret Key value..."; curl --insecure -H "Accept: application/json" -H 'Content-Length: 0' -X DELETE -G "_KeyServerUrl" -d id=`cat /tmp/keyServerRequestId` > /tmp/keyValue; gitSshKey=`cat /tmp/keyValue`; sleep 5; done
+                MAX_WAITS=_SecretKeyMaxWaitTries
+                WAIT_CTR=0
+                while [[ -z "$gitSshKey" && $WAIT_CTR -lt $MAX_WAITS ]]; do echo "Getting Secret Key value..."; curl --insecure -H "Accept: application/json" -H 'Content-Length: 0' -X DELETE -G "_KeyServerUrl" -d id=`cat /tmp/keyServerRequestId` > /tmp/keyValue; gitSshKey=`cat /tmp/keyValue`; sleep 5; ((WAIT_CTR++)); echo "Wait num:$WAIT_CTR"; done
                 rm -rf /tmp/keyValue
               fi
             fi                        
@@ -163,6 +172,8 @@ Resources:
               #
               # Get the Hiera config
               #
+              echo "Installing git before getting Hiera config..."
+              yum -y install git
               echo "Getting Hiera config..."
               echo 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*' > /tmp/ssh
               chmod +x /tmp/ssh
@@ -199,7 +210,7 @@ Resources:
             mkdir -p /tmp/redbox
             wget -N -O /tmp/redbox/install.sh https://raw.githubusercontent.com/redbox-mint-contrib/puppet-redbox/master/scripts/install.sh  
             chmod +x /tmp/redbox/install.sh
-            /tmp/redbox/install.sh _InstallType
+            /tmp/redbox/install.sh _InstallType _Environment
             echo "End of software stack installation"
             echo `date +"%D-%H:%M:%S"`   
             
