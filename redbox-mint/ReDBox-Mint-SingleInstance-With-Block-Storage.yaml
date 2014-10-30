@@ -42,7 +42,9 @@ Parameters:
     Description: The ReDBox Installation type, defaults to ‘basic’. 
     Default: basic
     AllowedValues: [basic, harvester-complete]
-
+  PostInstallCmd:
+    Type: String
+    Description: A comma delimited list of bash commands to run after ReDBox is installed.
 Mappings:
 
   InstanceId:
@@ -94,6 +96,7 @@ Resources:
         Fn::Base64:
           Fn::Replace:
           - _InstallType: {Ref: InstallType} 
+            _PostInstallCmd: {Ref: PostInstallCmd}
           - |
               #!/bin/bash -v
               echo "Starting to install software stack..."
@@ -120,6 +123,15 @@ Resources:
               wget -N -O /tmp/redbox/install.sh https://raw.githubusercontent.com/redbox-mint-contrib/puppet-redbox/master/scripts/install.sh 
               chmod +x /tmp/redbox/install.sh
               /tmp/redbox/install.sh _InstallType
+              echo "ReDBox is installed."
+              echo "Running Post Install Commands..."
+              while IFS=',' read -ra POST_INSTALL_CMDS; do
+                  for cmd in "${POST_INSTALL_CMDS[@]}"; do
+                    echo "Running... $cmd"
+                    /bin/bash -c "$cmd"
+                  done
+              done <<< "_PostInstallCmd"
+              echo "Done Running Post Install Commands."
               echo "End of software stack installation"
               echo `date +"%D-%H:%M:%S"` 
               

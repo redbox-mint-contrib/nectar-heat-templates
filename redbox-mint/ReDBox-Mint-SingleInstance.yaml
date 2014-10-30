@@ -17,7 +17,7 @@
 # 
 # Author: <a href="https://github.com/shilob">Shilo Banihit</a>
  
-HeatTemplateFormatVersion: '2014-04-08'
+HeatTemplateFormatVersion: '2012-12-12'
 
 Description: >
   Template for creating a ReDBox-Mint software stack on ephemeral storage. 
@@ -37,8 +37,8 @@ Parameters:
   ImageName:
     Type: String
     Description: Name of the image to use for the instance to be created (currently only has support for CentOS)
-    Default: CentOS_6.5_x86_64
-    AllowedValues: [CentOS_6.5_x86_64]
+    Default: NeCTAR CentOS 6.5 x86_64
+    AllowedValues: [NeCTAR CentOS 6.5 x86_64]
   AvailabilityZone:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
@@ -49,10 +49,13 @@ Parameters:
     Description: The ReDBox Installation type, defaults to ‘basic’. 
     Default: basic
     AllowedValues: [basic, harvester-complete]
+  PostInstallCmd:
+    Type: String
+    Description: A comma delimited list of bash commands to run after ReDBox is installed.
   
 Mappings:
   InstanceId:
-   'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
+   'NeCTAR CentOS 6.5 x86_64': {ImageId: a5e74703-f343-415a-aa23-bd0f0aacfc9e}   
 
 Resources:
   ReDBoxSecGroup:
@@ -90,7 +93,8 @@ Resources:
       user_data:
         Fn::Base64:
           Fn::Replace:
-          - _InstallType: {Ref: InstallType} 
+          - _InstallType: {Ref: InstallType}
+            _PostInstallCmd: {Ref: PostInstallCmd}
           - |
             #!/bin/bash -v
             # Mount the Ephemeral disk and use it as /opt
@@ -104,6 +108,15 @@ Resources:
             wget -N -O /tmp/redbox/install.sh https://raw.githubusercontent.com/redbox-mint-contrib/puppet-redbox/master/scripts/install.sh 
             chmod +x /tmp/redbox/install.sh
             /tmp/redbox/install.sh _InstallType
+            echo "ReDBox is installed."
+            echo "Running Post Install Commands..."
+            while IFS=',' read -ra POST_INSTALL_CMDS; do
+                for cmd in "${POST_INSTALL_CMDS[@]}"; do
+                  echo "Running... $cmd"
+                  /bin/bash -c "$cmd"
+                done
+            done <<< "_PostInstallCmd"
+            echo "Done Running Post Install Commands."
             echo "End of software stack installation"
             echo `date +"%D-%H:%M:%S"` 
 

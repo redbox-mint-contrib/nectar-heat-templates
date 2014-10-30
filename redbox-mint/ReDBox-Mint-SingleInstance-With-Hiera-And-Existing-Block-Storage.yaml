@@ -17,14 +17,14 @@
 # 
 # Author: <a href="https://github.com/shilob">Shilo Banihit</a>
 
-HeatTemplateFormatVersion: '2014-06-19'
+HeatTemplateFormatVersion: '2012-12-12'
 
 Description: >
   Template for creating a ReDBox-Mint software stack with access to an pre-existing volume storage. 
-  This template currently works only with the NeCTAR CentOS 6.5 x86_64 image.
+  This template currently tested to work with the NeCTAR CentOS 6.5 x86_64 image.
   The Block storage will be mounted on "/mnt/data", which will be mapped to "/opt". The volume will be partitioned and formatted if it is not already so.
   
-  Untested: Optionally, if you want more than just the vanilla configuration, you will need Hiera configuration similar to https://github.com/redbox-mint-contrib/puppet-heira-redbox
+  Optionally, if you want more than just the vanilla configuration, you will need Hiera configuration similar to https://github.com/redbox-mint-contrib/puppet-heira-redbox
   and assumes that the configuration is hosted behind a private Git repository. 
   The template will accept an SSH key parameter to access the private Hiera repository, which is then discarded after cloning.  
   This is handy when creating instances requiring environment-specific configuration.
@@ -79,6 +79,15 @@ Parameters:
   ServerName:
     Type: String
     Description: The name of the Server instance
+  CidrInstitution:
+    Type: String
+    Description: The CIDR of the institution's network.
+  CidrAdmin1:
+    Type: String
+    Description: The CIDR of the first Admin network
+  PostInstallCmd:
+    Type: String
+    Description: A comma delimited list of bash commands to run after ReDBox is installed.
 Mappings:
   InstanceId:
    'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
@@ -93,7 +102,7 @@ Resources:
           IpProtocol: "tcp"
           FromPort: "80"
           ToPort: "80"
-          CidrIp: "0.0.0.0/0"
+          CidrIp: {Ref: CidrInstitution}
         -
           IpProtocol: "tcp"
           FromPort: "22"
@@ -101,9 +110,9 @@ Resources:
           CidrIp: "0.0.0.0/0"
         -
           IpProtocol: "tcp"
-          FromPort: "9000"
-          ToPort: "9300"
-          CidrIp: "0.0.0.0/0"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: {Ref: CidrAdmin1}
   ReDBoxInstance:
     Type: OS::Nova::Server
     Properties:
@@ -125,7 +134,9 @@ Resources:
             _Environment: {Ref: Environment}
             _KeyServerUrl: {Ref: SecretKeyServerUrl}
             _KeyName: {Ref: SecretKeyName}
-            _InstallType: {Ref: InstallType} 
+            _InstallType: {Ref: InstallType}
+            _SecretKeyMaxWaitTries: {Ref: SecretKeyMaxWaitTries} 
+            _PostInstallCmd: {Ref: PostInstallCmd}
           - |
             #!/bin/bash -v           
             #
@@ -211,6 +222,15 @@ Resources:
             wget -N -O /tmp/redbox/install.sh https://raw.githubusercontent.com/redbox-mint-contrib/puppet-redbox/master/scripts/install.sh  
             chmod +x /tmp/redbox/install.sh
             /tmp/redbox/install.sh _InstallType _Environment
+            echo "ReDBox is installed."
+            echo "Running Post Install Commands..."
+            while IFS=',' read -ra POST_INSTALL_CMDS; do
+                for cmd in "${POST_INSTALL_CMDS[@]}"; do
+                  echo "Running... $cmd"
+                  /bin/bash -c "$cmd"
+                done
+            done <<< "_PostInstallCmd"
+            echo "Done Running Post Install Commands."
             echo "End of software stack installation"
             echo `date +"%D-%H:%M:%S"`   
             

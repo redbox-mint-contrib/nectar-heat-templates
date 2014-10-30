@@ -17,17 +17,20 @@
 # 
 # Author: <a href="https://github.com/shilob">Shilo Banihit</a>
 
-HeatTemplateFormatVersion: '2014-06-19'
+HeatTemplateFormatVersion: '2012-12-12'
 
 Description: >
   Template for creating a ReDBox-Mint software stack with access to volume storage. 
-  This template currently works only with the official NeCTAR CentOS 6.5 x86_64 image.
+  This template currently tested to work with the official NeCTAR CentOS 6.5 x86_64 image.
   The Block storage will be mounted on "/mnt/data", which will be mapped to "/opt". The volume will be partitioned and formatted.
   
-  Untested: Optionally, if you want more than just the vanilla configuration, you will need Hiera configuration similar to https://github.com/redbox-mint-contrib/puppet-heira-redbox
+  Optionally, if you want more than just the vanilla configuration, you will need Hiera configuration similar to https://github.com/redbox-mint-contrib/puppet-heira-redbox
   and assumes that the configuration is hosted behind a private Git repository. 
-  The template will accept an SSH key parameter to access the private Hiera repository, which is then discarded after cloning.  
-  This is handy when creating instances requiring environment-specific configuration.
+  The template will accept an SSH private key parameter to access the private Hiera repository, which is then discarded after cloning.  
+  This is handy when creating instances requiring environment-specific configuration. 
+  
+  If you don't wan't to pass the SSH private key as parameter, since parameters are stored in plaintext within the HEAT database, then provide a "SecretKeyServerUrl" and "SecretKeyName" parameters.
+  These parameters enable a mechanism to workaround passing the SSH private key as a template parameter. As with the above process, the key is discarded after cloning the Hiera configuration.
   
    
   
@@ -44,8 +47,8 @@ Parameters:
   ImageName:
     Type: String
     Description: Name of the image to use for the instance to be created (currently only has support for CentOS)
-    Default: CentOS_6.5_x86_64
-    AllowedValues: [CentOS_6.5_x86_64]
+    Default: NeCTAR CentOS 6.5 x86_64
+    AllowedValues: [NeCTAR CentOS 6.5 x86_64]
   AvailabilityZone:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
@@ -74,9 +77,7 @@ Parameters:
     Type: Number
     Description: Size of the volume to be created.
     Default: 5
-    Constraints:
-      - Range: { Min: 5, Max: 1024 }
-        Description: must be between 5 and 1024 Gb. 
+    AllowedValues: [5,10,20]
   InstallType:
     Type: String
     Description: The ReDBox Installation type, defaults to ‘basic’. 
@@ -85,10 +86,18 @@ Parameters:
   ServerName:
     Type: String
     Description: The name of the Server instance
-    
+  CidrInstitution:
+    Type: String
+    Description: The CIDR of the institution's network.
+  CidrAdmin1:
+    Type: String
+    Description: The CIDR of the first Admin network.
+  PostInstallCmd:
+    Type: String
+    Description: A comma delimited list of bash commands to run after ReDBox is installed.
 Mappings:
   InstanceId:
-   'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
+   'NeCTAR CentOS 6.5 x86_64': {ImageId: a5e74703-f343-415a-aa23-bd0f0aacfc9e}   
 
 Resources:
   CinderVolume:
@@ -115,7 +124,7 @@ Resources:
           IpProtocol: "tcp"
           FromPort: "80"
           ToPort: "80"
-          CidrIp: "0.0.0.0/0"
+          CidrIp: {Ref: CidrInstitution}
         -
           IpProtocol: "tcp"
           FromPort: "22"
@@ -123,9 +132,9 @@ Resources:
           CidrIp: "0.0.0.0/0"
         -
           IpProtocol: "tcp"
-          FromPort: "9000"
-          ToPort: "9300"
-          CidrIp: "0.0.0.0/0"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: {Ref: CidrAdmin1}
           
   ReDBoxInstance:
     Type: OS::Nova::Server
@@ -150,6 +159,7 @@ Resources:
             _KeyName: {Ref: SecretKeyName}
             _InstallType: {Ref: InstallType}
             _SecretKeyMaxWaitTries: {Ref: SecretKeyMaxWaitTries} 
+            _PostInstallCmd: {Ref: PostInstallCmd}
           - |
             #!/bin/bash -v           
             #
@@ -234,7 +244,16 @@ Resources:
             wget -N -O /tmp/redbox/install.sh https://raw.githubusercontent.com/redbox-mint-contrib/puppet-redbox/master/scripts/install.sh 
             chmod +x /tmp/redbox/install.sh
             /tmp/redbox/install.sh _InstallType _Environment
-            echo "End of software stack installation"
+            echo "ReDBox is installed."
+            echo "Running Post Install Commands..."
+            while IFS=',' read -ra POST_INSTALL_CMDS; do
+                for cmd in "${POST_INSTALL_CMDS[@]}"; do
+                  echo "Running... $cmd"
+                  /bin/bash -c "$cmd"
+                done
+            done <<< "_PostInstallCmd"
+            echo "Done Running Post Install Commands."
+            echo "End of software stack installation."
             echo `date +"%D-%H:%M:%S"`     
               
 Outputs:  
