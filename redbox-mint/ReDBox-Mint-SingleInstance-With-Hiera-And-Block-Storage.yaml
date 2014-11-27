@@ -75,9 +75,9 @@ Parameters:
     Description: The environment string that will be saved in the 'main' puppet configuration. Values will be specific to your Hiera config.
   VolumeSize:
     Type: Number
-    Description: Size of the volume to be created.
+    Description: Size in GB of the volume to be created.
     Default: 5
-    AllowedValues: [5,10,20]
+    AllowedValues: [5,10,20,100]
   InstallType:
     Type: String
     Description: The ReDBox Installation type, defaults to ‘basic’. 
