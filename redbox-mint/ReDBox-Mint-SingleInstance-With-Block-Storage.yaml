@@ -7,47 +7,53 @@ Description: 'NeCTAR Template for creating a ReDBox-Mint software stack on ephem
 Parameters:
 
   KeyName:
+    Label: Name of an existing key pair to enable SSH access to the instance.
     Type: String
-    Default: nectar_dev
     Description:
       Name of an existing key pair to enable SSH access to the instance.
 
   InstanceSize:
+    Label: Size of the instance to be created.
     Type: String
     Description: Size of the instance to be created.
     Default: m1.small
     AllowedValues: [m1.small, m1.medium, m1.large, m1.xlarge, m1.xxlarge]
 
   ImageName:
+    Label: Name of the image to use for the instance to be created (currently only has support for CentOS)
     Type: String
     Description: Name of the image to use for the instance to be created (currently only has support for CentOS)
-    Default: CentOS6.5
-    AllowedValues: [CentOS6.5]
+    Default: NeCTAR CentOS 6.5 x86_64
+    AllowedValues: [NeCTAR CentOS 6.5 x86_64]
 
   AvailabilityZone:
+    Label: The NeCTAR zone in which the VM is to run (must have block storage)
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
     Default: NCI
     AllowedValues: [melbourne, monash, sa, qld, NCI]
 
   VolumeSize:
+    Label: Size in GB of the volume to be created.
     Type: Number
     Description: Size in GB of the volume to be created.
-    Default: 5
-    AllowedValues: [5,10,20,100]
+    Default: 10
+    AllowedValues: [10,25,50,100,250]
     
   InstallType:
+    Label: The ReDBox Installation type, defaults to ‘basic’. 
     Type: String
     Description: The ReDBox Installation type, defaults to ‘basic’. 
     Default: basic
     AllowedValues: [basic, harvester-complete]
   PostInstallCmd:
+    Label: A comma delimited list of bash commands to run after ReDBox is installed.
     Type: String
     Description: A comma delimited list of bash commands to run after ReDBox is installed.
 Mappings:
 
   InstanceId:
-   'CentOS6.5': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}
+   'NeCTAR CentOS 6.5 x86_64': {ImageId: a5e74703-f343-415a-aa23-bd0f0aacfc9e}   
 
 Resources:
 

@@ -26,31 +26,38 @@ Description: >
   
 Parameters:
   KeyName:
+    Label: SSH Key Pair 
     Type: String
     Description:
       Name of an existing key pair to enable SSH access to the instance.
   InstanceSize:
+    Label: Instance Size
     Type: String
     Description: Size of the instance to be created.
     Default: m1.small
     AllowedValues: [m1.small, m1.medium, m1.large, m1.xlarge, m1.xxlarge]
   ImageName:
+    Label: OS Image
     Type: String
     Description: Name of the image to use for the instance to be created (currently only has support for CentOS)
     Default: NeCTAR CentOS 6.5 x86_64
     AllowedValues: [NeCTAR CentOS 6.5 x86_64]
   AvailabilityZone:
+    Label: Availability Zone
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
     Default: NCI
     AllowedValues: [melbourne, monash, sa, qld, NCI]
   InstallType:
+    Label: Installation Type
     Type: String
     Description: The ReDBox Installation type, defaults to ‘basic’. 
     Default: basic
     AllowedValues: [basic, harvester-complete]
   PostInstallCmd:
+    Label: Post Install Command
     Type: String
+    Default: ls -l
     Description: A comma delimited list of bash commands to run after ReDBox is installed.
   
 Mappings:

@@ -42,8 +42,8 @@ Parameters:
   ImageName:
     Type: String
     Description: Name of the image to use for the instance to be created (currently only has support for CentOS)
-    Default: CentOS_6.5_x86_64
-    AllowedValues: [CentOS_6.5_x86_64]
+    Default: NeCTAR CentOS 6.5 x86_64
+    AllowedValues: [NeCTAR CentOS 6.5 x86_64
   AvailabilityZone:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
@@ -90,7 +90,7 @@ Parameters:
     Description: A comma delimited list of bash commands to run after ReDBox is installed.
 Mappings:
   InstanceId:
-   'CentOS_6.5_x86_64': {ImageId: 96761a90-635b-4718-8deb-f4ff57632db4}   
+   'NeCTAR CentOS 6.5 x86_64': {ImageId: a5e74703-f343-415a-aa23-bd0f0aacfc9e}   
 
 Resources:
   ReDBoxSecGroup:
