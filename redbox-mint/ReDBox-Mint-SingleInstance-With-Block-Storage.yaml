@@ -50,6 +50,14 @@ Parameters:
     Label: A comma delimited list of bash commands to run after ReDBox is installed.
     Type: String
     Description: A comma delimited list of bash commands to run after ReDBox is installed.
+  CidrInstitution:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: The CIDR of the institution's network.
+  CidrNla:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: The CIDR of NLA
 Mappings:
 
   InstanceId:
@@ -66,7 +74,12 @@ Resources:
           IpProtocol: "tcp"
           FromPort: "80"
           ToPort: "80"
-          CidrIp: "0.0.0.0/0"
+          CidrIp: "Ref: CidrInstitution}
+        -
+          IpProtocol: "tcp"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: {Ref: CidrNla}
         -
           IpProtocol: "tcp"
           FromPort: "22"
@@ -76,7 +89,7 @@ Resources:
           IpProtocol: "tcp"
           FromPort: "9000"
           ToPort: "9300"
-          CidrIp: "0.0.0.0/0"
+          CidrIp: {Ref: CidrInstitution}
 
   CinderVolume:
     Type: OS::Cinder::Volume

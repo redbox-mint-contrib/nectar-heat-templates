@@ -81,10 +81,12 @@ Parameters:
     Description: The name of the Server instance
   CidrInstitution:
     Type: String
+    Default: 0.0.0.0/0
     Description: The CIDR of the institution's network.
-  CidrAdmin1:
+  CidrNla:
     Type: String
-    Description: The CIDR of the first Admin network
+    Default: 0.0.0.0/0
+    Description: The CIDR of NLA
   PostInstallCmd:
     Type: String
     Description: A comma delimited list of bash commands to run after ReDBox is installed.
@@ -102,7 +104,12 @@ Resources:
           IpProtocol: "tcp"
           FromPort: "80"
           ToPort: "80"
-          CidrIp: {Ref: CidrInstitution}
+          CidrIp: "Ref: CidrInstitution}
+        -
+          IpProtocol: "tcp"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: {Ref: CidrNla}
         -
           IpProtocol: "tcp"
           FromPort: "22"
@@ -110,9 +117,10 @@ Resources:
           CidrIp: "0.0.0.0/0"
         -
           IpProtocol: "tcp"
-          FromPort: "80"
-          ToPort: "80"
-          CidrIp: {Ref: CidrAdmin1}
+          FromPort: "9000"
+          ToPort: "9300"
+          CidrIp: {Ref: CidrInstitution}
+          
   ReDBoxInstance:
     Type: OS::Nova::Server
     Properties:
