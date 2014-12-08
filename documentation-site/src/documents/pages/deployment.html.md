@@ -28,4 +28,4 @@ Once NeCTAR reports that the stack is ready for use. You should have a running R
 ![](../../images/redboxscreenshot.png)
 
 ###Step 5. Configure your ReDBox Instance
-Now that you have a running ReDBox instance it's time to configure it to your needs. The Heat templates deploy a supplementary ReDBox Administration interface to assist you with this task. Please visit the [ReDBox Administration Interface website](linkme) to learn more about it.
+Now that you have a running ReDBox instance it's time to configure it to your needs. The Heat templates deploy a supplementary ReDBox Administration interface to assist you with this task. Please visit the [ReDBox Administration Interface website](http://redbox-mint-contrib.github.io/redbox-admin/) to learn more about it.
