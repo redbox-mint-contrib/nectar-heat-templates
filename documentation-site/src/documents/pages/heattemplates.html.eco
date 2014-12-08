@@ -1,0 +1,18 @@
+---
+title: Heat Templates
+layout: page
+pageOrder: 2
+---
+<p>Below is a list of Heat templates that can be used to provision a ReDBox instance.</p>
+
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">Heat Templates</div>
+  <!-- List group -->
+  <ul class="list-group">
+ 	 <% for document in @getCollection('heattemplates').toJSON(): %>
+		<li class="list-group-item"><a  href="<%= @site.url %><%= document.url %>"><%= document.title %> </a><span class="last-updated">Last updated: <%= document.date.toDateString() %></span></li>
+
+	<% end %>
+  </ul>
+</div>
