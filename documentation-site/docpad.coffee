@@ -12,7 +12,7 @@ docpadConfig = {
 		# Specify some site properties
 		site:
 			# The production url of our website
-			url: "http://redbox-mint.github.io/redbox-build-distro"
+			url: "http://redbox-mint-contrib.github.io/nectar-heat-templates"
 
 			# Here are some old site urls that you would like to redirect from
 			oldUrls: [
