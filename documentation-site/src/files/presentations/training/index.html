@@ -42,7 +42,7 @@
 		<div class="reveal">
 			<div class='footer'>
 				<center>
-				<img src="images/ReDBoxLogoText.png" height="100" />
+				<img src="images/RedBoxLogoText.png" height="100" />
     		<img src="images/qciflogo.png" height="100" />
 			</center>
   		</div>
@@ -57,17 +57,19 @@
 				<section data-markdown>
 					<script type="text/template">
 						## Why ReDBox in the Cloud?
-						Thanks to the NeCTAR project, we have access to significant computing power.Hosting ReDBox as a service in the cloud could open the use of ReDBox to:
+						Thanks to the NeCTAR project, we have access to significant computing power. Hosting ReDBox as a service in the cloud could open the use of ReDBox to:
 
 						* Research groups looking for a solution to catalogue their research data
 						* Institutions that would like a repository but may not have had the technical resources to implement one.
 					</script>
 				</section>
-              
+
 				<section data-markdown>
 					<script type="text/template">
-						## Difficulties with old ReDBox
-
+						## Why has this been difficult to do in the past?
+						* No simple and reliable deployment scripts available<!-- .element: class="fragment roll-in" data-fragment-index="1" -->
+						* Configuring the application required technical resources<!-- .element: class="fragment roll-in" data-fragment-index="2" -->
+						* Upgrading software versions has been non-trivial<!-- .element: class="fragment roll-in" data-fragment-index="3" -->
 					</script>
 				</section>
 
@@ -80,12 +82,12 @@
 
 				<section data-markdown>
 					<script type="text/template">
-						## Heat Templates 
-						
+						## Heat Templates
+
 						Orchestrates OpenStack components <!-- .element: class="fragment roll-in" data-fragment-index="1" -->
-                        
-						
-						- Provision Infrastructure <!-- .element: class="fragment roll-in" data-fragment-index="2" -->	
+
+
+						- Provision Infrastructure <!-- .element: class="fragment roll-in" data-fragment-index="2" -->
 						- Install pre-requisite software (Puppet)<!-- .element: class="fragment roll-in" data-fragment-index="3" -->
 						- Install ReDBox/Mint (Puppet)<!-- .element: class="fragment roll-in" data-fragment-index="4" -->
 					</script>
@@ -94,7 +96,7 @@
 				<section data-markdown>
 					<script type="text/template">
 						## Heat Templates
-						
+
 						- Simple <!-- .element: class="fragment roll-in" data-fragment-index="1" -->
 						- Simple with Block Storage <!-- .element: class="fragment roll-in" data-fragment-index="2" -->
 						- Advanced with Block Storage (work in progress) <!-- .element: class="fragment roll-in" data-fragment-index="3" -->
@@ -103,32 +105,52 @@
 
 				<section data-markdown>
 					<script type="text/template">
-						## App Mods 1
+						## Packaging the applications
+						* Previously used tarballs (tar.gz) files<!-- .element: class="fragment roll-in" data-fragment-index="1" -->
+						* Using RPMs and a YUM repository allows us to use the OS' in-built package management tool to handle upgrades.<!-- .element: class="fragment roll-in" data-fragment-index="2" -->
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-						## App Mods 2
+						## New ReDBox Institutional Build
+						* Previously, ReDBox installs required Maven and editing of text files to configure <!-- .element: class="fragment roll-in" data-fragment-index="1" -->
+						* Difficult to upgrade due to configuration being in one large file<!-- .element: class="fragment roll-in" data-fragment-index="2" -->
+						<li>New [ReDBox Build](http://github.com/redbox-mint/redbox-build-distro) removes need for Maven by packaging all supported plugins in the one build</li><!-- .element: class="fragment roll-in" data-fragment-index="3" -->
+						* Configuration split up into multiple files categorised by their purpose <!-- .element: class="fragment roll-in" data-fragment-index="4" -->
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-						## App Mods 3
+						## ReDBox Administration Interface
+						Brand new application designed to aid configuration and maintenance of the suite of applications.
+
+						Features:
+
+						* Ability to Stop, Start and Restart ReDBox and Mint
+						* Configure features in the ReDBox application
+						* Customise the ReDBox branding
+						* View application logs
+						* Upload CSVs for Mint data types
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-						## App Mods 4
+						## New Harvester
+						A new harvester was developed to allow greater flexibility and customisation as well as better error reporting.
+
+
+						When set up in a cloud instance, the harvester is configured to accept CSVs for Mint data types.
+
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-						## Puppet 
-						
+						## Puppet
+
 						- Automating system administration tasks: configuring OS, installing software, etc. <!-- .element: class="fragment roll-in" data-fragment-index="1" -->
 						- Performs the bulk of the tasks to get from a blank instance to a running ReDBox/Mint   <!-- .element: class="fragment roll-in" data-fragment-index="2" -->
 					</script>
@@ -137,7 +159,7 @@
 				<section data-markdown>
 					<script type="text/template">
 						## Puppet Modules
-						
+
 						- Core ReDBox <!-- .element: class="fragment roll-in" data-fragment-index="1" -->
 						- Common <!-- .element: class="fragment roll-in" data-fragment-index="2" -->
 						- Hiera (Exemplar) <!-- .element: class="fragment roll-in" data-fragment-index="3" -->
@@ -146,25 +168,36 @@
 
 				<section data-markdown>
 					<script type="text/template">
-						## Nectar Stacks Demo
+						## NeCTAR Stacks
+						* New feature now available in the NeCTAR dashboard<!-- .element: class="fragment roll-in" data-fragment-index="1" -->
+						* Currently in Beta<!-- .element: class="fragment roll-in" data-fragment-index="2" -->
+						* Allows the launching of intances via Heat templates<!-- .element: class="fragment roll-in" data-fragment-index="3" -->
+						<li>[More information](https://support.rc.nectar.org.au/docs/heat)</li><!-- .element: class="fragment roll-in" data-fragment-index="4" -->
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-						## Limitations and Enhancements 1
+						## Current limitations
+						* Providing sensitive data to your image at deploy time (e.g. SSL/TLS certificates) <!-- .element: class="fragment roll-in" data-fragment-index="1" -->
+						* A very narrow subset of configuration items currently supported<!-- .element: class="fragment roll-in" data-fragment-index="2" -->
 					</script>
 				</section>
 
 				<section data-markdown>
 					<script type="text/template">
-						## Limitations and Enhancements 2
-					</script>
-				</section>
+						## Areas for enhancement
 
-				<section data-markdown>
-					<script type="text/template">
-						## Limitations and Enhancements 3
+						Look at including more OS level diagnostic and administration tooling.<!-- .element: class="fragment roll-in" data-fragment-index="1" -->
+
+						Ability to configure:<!-- .element: class="fragment roll-in" data-fragment-index="2" -->
+
+						* Forms (currently in development)<!-- .element: class="fragment roll-in" data-fragment-index="2" -->
+						* New data types<!-- .element: class="fragment roll-in" data-fragment-index="3" -->
+						* Harvest scripts and data rules<!-- .element: class="fragment roll-in" data-fragment-index="4" -->
+						* Configuring and customising transformers<!-- .element: class="fragment roll-in" data-fragment-index="5" -->
+						* Curation configuration<!-- .element: class="fragment roll-in" data-fragment-index="6" -->
+						* And more!<!-- .element: class="fragment roll-in" data-fragment-index="7" -->
 					</script>
 				</section>
 
