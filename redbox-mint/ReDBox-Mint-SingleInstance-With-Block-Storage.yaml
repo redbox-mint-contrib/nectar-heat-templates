@@ -31,7 +31,7 @@ Parameters:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
     Default: NCI
-    AllowedValues: [melbourne, monash, sa, qld, NCI]
+    AllowedValues: [melbourne,monash,sa, QRIScloud, tasmania, intersect, nova, NCI]
 
   VolumeSize:
     Label: Size in GB of the volume to be created.

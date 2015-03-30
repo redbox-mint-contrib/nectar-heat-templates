@@ -48,7 +48,7 @@ Parameters:
     Type: String
     Description: The NeCTAR zone in which the VM is to run (must have block storage)
     Default: NCI
-    AllowedValues: [melbourne, monash, sa, qld, NCI]    
+    AllowedValues: [melbourne,monash,sa, QRIScloud, tasmania, intersect, nova, NCI]
   HieraGitUrl:
     Type: String    
     Description: The URL of the private Git repository containing the Hiera configuration.
