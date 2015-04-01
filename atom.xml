@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>ReDBox Heat Templates Documentation</title>
+	<link href="http://redbox-mint-contrib.github.io/nectar-heat-templates/atom.xml" rel="self"/>
+	<link href="http://redbox-mint-contrib.github.io/nectar-heat-templates"/>
+	<updated>2015-04-01T03:02:44.657Z</updated>
+	<id>http://redbox-mint-contrib.github.io/nectar-heat-templates</id>
+	<author>
+		<name>Queensland Cyber Infrastructure Foundation</name>
+		<email>your@email.com</email>
+	</author>
+
+	
+</feed>

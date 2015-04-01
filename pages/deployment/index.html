@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Meta -->
+	<meta charset="utf-8" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<!-- Use the .htaccess and remove these lines to avoid edge case issues.
+		 More info: h5bp.com/i/378 -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+	<!-- Our site title and description -->
+	<title>Deployment Guide | ReDBox Heat Templates Documentation</title>
+	<meta name="description" content="Documentation associated with the ReDBox Heat Templates" />
+	<meta name="keywords" content="place, your, website, keywoards, here, keep, them, related, to, the, content, of, your, website" />
+	<meta name="author" content="Queensland Cyber Infrastructure Foundation" />
+
+	<!-- Output DocPad produced meta elements -->
+	<meta name="generator" content="DocPad v6.69.1" />
+
+	<!-- Mobile viewport optimized: h5bp.com/viewport -->
+	<meta name="viewport" content="width=device-width" />
+
+	<!-- Icons -->
+		<link rel="shortcut icon" href="http://redbox-mint-contrib.github.io/nectar-heat-templatesimages/icons/favicon.ico">
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/images/icons/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/images/icons/apple-touch-icon-114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/images/icons/apple-touch-icon-72-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/images/icons/apple-touch-icon-57-precomposed.png">
+
+	<!-- Shims: IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+		<script async src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	
+	
+		<link  rel="stylesheet" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/styles/twitter-bootstrap.css" />
+
+	
+	
+	
+		<link  rel="stylesheet" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/styles/style.css" />
+
+	
+	
+</head>
+<body>
+	<!-- Menu -->
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="http://redbox-mint-contrib.github.io/nectar-heat-templates">Home</a>
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+
+						<li
+							typeof="sioc:Page"
+							about="/pages/deployment"
+							class="active"
+						>
+							<a href="http://redbox-mint-contrib.github.io/nectar-heat-templates/pages/deployment" property="dc:title">
+								Deployment Guide
+							</a>
+						</li>
+						<li
+							typeof="sioc:Page"
+							about="/pages/heattemplates.html"
+							class=""
+						>
+							<a href="http://redbox-mint-contrib.github.io/nectar-heat-templates/pages/heattemplates" property="dc:title">
+								Heat Templates
+							</a>
+						</li>
+
+				</ul>
+			</div><!--/.navbar-collapse -->
+		</div>
+	</div>
+
+	<!-- Content -->
+	<div class="container">
+		<!-- Content -->
+		<section id="content" class="content">
+			<article id="page" class="page">
+	<h1>Deployment Guide</h1>
+	<div class="page-content"><p>You can now deploy ReDBox in the NecTAR cloud using the Nectar Heat functionality.</p>
+<h2 id="pre-requisites">Pre-requisites</h2>
+<ul>
+<li>You must have access to NeCTAR</li>
+<li>You must have a tenancy with the appropriate allowances to launch the ReDBox configuration (details in template descriptions)</li>
+</ul>
+<h2 id="deployment-instructions">Deployment Instructions</h2>
+<h3 id="step-1-decide-which-heat-template-you-would-like-to-use-">Step 1. Decide which Heat template you would like to use.</h3>
+<p>We currently have 2 templates that deploy ReDBox using different server configurations. Information on each of them is available <a href="/pages/heattemplates">here</a>.</p>
+<h3 id="step-2-load-template-in-the-nectar-dashboard">Step 2. Load template in the NeCTAR dashboard</h3>
+<p>Instructions on how to do this is available on the <a href="https://support.rc.nectar.org.au/docs/heat/dashboard">NeCTAR website</a>.</p>
+<p><strong>Note:</strong> At the time of writing using a URL source for the Heat template was not functioning. If this is the case you may need to download the template and use the File source option</p>
+<h3 id="step-3-configure-your-instance-in-the-nectar-dashboard">Step 3. Configure your instance in the NeCTAR dashboard</h3>
+<p>Information on what the fields for your templates mean and how to configure your instance appropriately is available <a href="/pages/heattemplates">here</a>.</p>
+<h3 id="step-4-launch-the-stack">Step 4. Launch the stack</h3>
+<p>Once NeCTAR reports that the stack is ready for use. You should have a running ReDBox instance! You can then grab the IP Address that has been assigned to the machine and visit http://<ip address>/redbox in your web browser. If everything was successful you will have will be greeted with the ReDBox dashboard
+<img src="../../images/redboxscreenshot.png" alt=""></p>
+<h3 id="step-5-configure-your-redbox-instance">Step 5. Configure your ReDBox Instance</h3>
+<p>Now that you have a running ReDBox instance it&#39;s time to configure it to your needs. The Heat templates deploy a supplementary ReDBox Administration interface to assist you with this task. Please visit the <a href="http://redbox-mint-contrib.github.io/redbox-admin/">ReDBox Administration Interface website</a> to learn more about it.</p>
+</div>
+</article>
+		</section>
+
+		<!-- Footer -->
+		<footer>
+			<p class="pull-left">&copy; Queensland Cyber Infrastructure Foundation 2015</p>
+			<p class="pull-right">
+				This website was last updated at 2015-04-01T03:02:44.657Z
+			</p>
+		</footer>
+	</div><!-- /container -->
+
+	<!-- Scripts -->
+	
+	
+	<script defer="defer"  src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	
+	
+	
+	<script defer="defer"  src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+	
+	
+	
+		<script defer="defer"  src="http://redbox-mint-contrib.github.io/nectar-heat-templates/vendor/twitter-bootstrap/dist/js/bootstrap.min.js"></script>
+
+	
+	
+	
+		<script defer="defer"  src="http://redbox-mint-contrib.github.io/nectar-heat-templates/scripts/script.js"></script>
+
+	
+	
+
+</body>
+</html>

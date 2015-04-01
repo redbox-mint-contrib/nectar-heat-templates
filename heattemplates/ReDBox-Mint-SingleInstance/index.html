@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Meta -->
+	<meta charset="utf-8" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+
+	<!-- Use the .htaccess and remove these lines to avoid edge case issues.
+		 More info: h5bp.com/i/378 -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+	<!-- Our site title and description -->
+	<title>ReDBox &amp; Mint Single Instance | ReDBox Heat Templates Documentation</title>
+	<meta name="description" content="Documentation associated with the ReDBox Heat Templates" />
+	<meta name="keywords" content="place, your, website, keywoards, here, keep, them, related, to, the, content, of, your, website" />
+	<meta name="author" content="Queensland Cyber Infrastructure Foundation" />
+
+	<!-- Output DocPad produced meta elements -->
+	<meta name="generator" content="DocPad v6.69.1" />
+
+	<!-- Mobile viewport optimized: h5bp.com/viewport -->
+	<meta name="viewport" content="width=device-width" />
+
+	<!-- Icons -->
+		<link rel="shortcut icon" href="http://redbox-mint-contrib.github.io/nectar-heat-templatesimages/icons/favicon.ico">
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/images/icons/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/images/icons/apple-touch-icon-114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/images/icons/apple-touch-icon-72-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/images/icons/apple-touch-icon-57-precomposed.png">
+
+	<!-- Shims: IE6-8 support of HTML5 elements -->
+	<!--[if lt IE 9]>
+		<script async src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Styles -->
+	
+	
+		<link  rel="stylesheet" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/styles/twitter-bootstrap.css" />
+
+	
+	
+	
+		<link  rel="stylesheet" href="http://redbox-mint-contrib.github.io/nectar-heat-templates/styles/style.css" />
+
+	
+	
+</head>
+<body>
+	<!-- Menu -->
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="http://redbox-mint-contrib.github.io/nectar-heat-templates">Home</a>
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+
+						<li
+							typeof="sioc:Page"
+							about="/pages/deployment"
+							class=""
+						>
+							<a href="http://redbox-mint-contrib.github.io/nectar-heat-templates/pages/deployment" property="dc:title">
+								Deployment Guide
+							</a>
+						</li>
+						<li
+							typeof="sioc:Page"
+							about="/pages/heattemplates.html"
+							class=""
+						>
+							<a href="http://redbox-mint-contrib.github.io/nectar-heat-templates/pages/heattemplates" property="dc:title">
+								Heat Templates
+							</a>
+						</li>
+
+				</ul>
+			</div><!--/.navbar-collapse -->
+		</div>
+	</div>
+
+	<!-- Content -->
+	<div class="container">
+		<!-- Content -->
+		<section id="content" class="content">
+			<article id="page" class="page">
+	<h1>ReDBox &amp; Mint Single Instance</h1>
+	<div class="page-content"><p>The ReDBox &amp; Mint Single Instance template is the simplest possible ReDBox configuration. It will install the following applications:</p>
+<ol>
+<li>ReDBox</li>
+<li>Mint</li>
+<li>ReDBox Administration interface</li>
+</ol>
+<p>on a NeCTAR virtual machine profile of your choosing. This template is ideal for a ReDBox instance that you only want to run for a short period of time or for testing. The reason for this is that due to storage requirements, the applications and their data are stored on the ephemeral storage. For most cases, the <a href="/heattemplates/ReDBox-Mint-SingleInstance-With-Block-Storage">ReDBox Mint- Single Instance With Block Storage</a> is the preferred template to use as the storage (NeCTAR Volume Storage) is more robust. For more information on the different storage options available in NecTAR visit the NeCTAR <a href="https://support.rc.nectar.org.au/docs/storage">website</a>.</p>
+<h3 id="-download-link-https-raw-githubusercontent-com-redbox-mint-contrib-nectar-heat-templates-master-redbox-mint-redbox-mint-singleinstance-yaml-"><a href="https://raw.githubusercontent.com/redbox-mint-contrib/nectar-heat-templates/master/redbox-mint/ReDBox-Mint-SingleInstance.yaml">Download link</a></h3>
+<h2 id="form-fields-description">Form fields description</h2>
+<p>As well as the <a href="https://support.rc.nectar.org.au/docs/heat/dashboard">standard fields generated by NeCTAR stacks</a>, the template provides the following fields to customise your instance:</p>
+<h3 id="instancesize">InstanceSize</h3>
+<p>This field is used to specify the size of the NecTAR instance ReDBox will run on. The dropdown provides a list of the available profiles in NeCTAR. For more info on these profiles visit the <a href="https://support.rc.nectar.org.au/docs/resources-available">NeCTAR website</a>. ReDBox and Mint will run on any of the available NeCTAR profiles, however for performance m1.medium is recommended as a minimum.</p>
+<h3 id="instancesize">InstanceSize</h3>
+<p>This field is used to specify the size of the NecTAR instance ReDBox will run on. The dropdown provides a list of the available profiles in NeCTAR. For more info on these profiles visit the <a href="https://support.rc.nectar.org.au/docs/resources-available">NeCTAR website</a>. ReDBox and Mint will run on any of the available NeCTAR profiles, however for performance m1.medium is recommended as a minimum.</p>
+<h3 id="imagename">ImageName</h3>
+<p>List of NeCTAR images supported for launching on the instance. Currently only <a href="https://wiki.rc.nectar.org.au/wiki/Image_Catalog">NeCTAR CentOS 6.5 x86_64</a> but other images may be supported in the future.</p>
+<h3 id="availabilityzone">AvailabilityZone</h3>
+<p>The availability zone is the NeCTAR zone in which the VM will run. Generally, the zone to choose is the one closest to your location.</p>
+<h3 id="installtype">InstallType</h3>
+<p>The ReDBox Installation type. There are 2 options in the dropdown:</p>
+<ul>
+<li>basic - installs Mint configured to use the older built-in harvester.</li>
+<li>harvester-complete (default value) - installs the new stand-alone harvester configured to harvest Mint records.</li>
+</ul>
+<p>The harvester-complete is recommended as it is configured to work with the ReDBox Administration interface to allow uploading of data source CSVs. If you wish to use the basic installation type, you will need to manually scp files onto the server and execute commands to harvest.</p>
+<h3 id="postinstallcmd">PostInstallCmd</h3>
+<p>The Post Install Command is a comma delimited list of bash commands to run after ReDBox is installed. It is intended for power users and can be left blank in most cases.</p>
+<h3 id="cidrinstitution">CidrInstitution</h3>
+<p>Potentially you may want to restrict access to your ReDBox and Mint instance so that it&#39;s only available to your institution. This field allows you to enter a <a href="http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">Classless Inter-Domain Routing (CIDR)</a> value to the NeCTAR firewall to restrict access. If no value is supplied, the instance will be available from all IP addresses (CIDR 0.0.0.0/0).</p>
+<h3 id="cidrnla">CidrNLA</h3>
+<p>This is the CIDR value to allow access by the National Library of Australia (NLA) TROVE harvester. By default this is set to 0.0.0.0/0 so as if no value is set for CidrInstitution, access isn&#39;t restricted. If you are setting a value for CidrInstitution, input 192.102.239.0/24 to allow access by NLA.</p>
+</div>
+</article>
+		</section>
+
+		<!-- Footer -->
+		<footer>
+			<p class="pull-left">&copy; Queensland Cyber Infrastructure Foundation 2015</p>
+			<p class="pull-right">
+				This website was last updated at 2015-04-01T03:02:44.657Z
+			</p>
+		</footer>
+	</div><!-- /container -->
+
+	<!-- Scripts -->
+	
+	
+	<script defer="defer"  src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	
+	
+	
+	<script defer="defer"  src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+	
+	
+	
+		<script defer="defer"  src="http://redbox-mint-contrib.github.io/nectar-heat-templates/vendor/twitter-bootstrap/dist/js/bootstrap.min.js"></script>
+
+	
+	
+	
+		<script defer="defer"  src="http://redbox-mint-contrib.github.io/nectar-heat-templates/scripts/script.js"></script>
+
+	
+	
+
+</body>
+</html>
